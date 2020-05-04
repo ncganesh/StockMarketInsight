@@ -104,9 +104,9 @@ def render_content(tab):
 @app.callback(Output('table-output', 'children'),
               [Input('dropdown', 'value')])
 def get_data_table(option):
-    df = yahoonewsdata(option)
-    df2 = df[['date','title','summary']]
-    df = pd.DataFrame(df2)
+    latestheadlines = yahoonewsdata(option)
+    df2 = pd.DataFrame(latestheadlines,columns = ['headline','url'])
+    df = df2[['headline']]
     data_table = dash_table.DataTable(
 
         id='datatable-data',

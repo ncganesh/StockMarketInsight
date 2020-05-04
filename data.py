@@ -48,8 +48,8 @@ def get_coin_data(crypto='AMZN', start_date='2013-04-28', end_date='2020-04-28',
     return df
 
 
-
 def get_news_headlines(url):
+    latestheadlines = []
     latestheadlines_links = []
     parsed_uri = urlparse.urljoin(url, '/')
 
@@ -58,20 +58,26 @@ def get_news_headlines(url):
         req = requests.get(url)
         html = req.text
         soup = BeautifulSoup(html, 'html.parser')
+        html = soup.findAll('h3')
         links = soup.findAll('a')
 
+        if html:
+            for i in html:
+                latestheadlines.append((i.next.next.next.next, url))
 
-        for i in links:
-            if '/news/' in i['href'] or '/m/' in i['href']:
-                l = parsed_uri.rstrip('/') + i['href']
-                latestheadlines_links.append(l)
+        if links:
+            for i in links:
+                if '/news/' in i['href']:
+                    l = parsed_uri.rstrip('/') + i['href']
+
+                    latestheadlines_links.append(l)
+
 
     except requests.exceptions.RequestException as re:
         print("Exception: can't crawl web site (%s)" % re)
         pass
 
-    return latestheadlines_links
-
+    return latestheadlines, latestheadlines_links
 
 def get_articles(links):
     # Intialize list articles_info list
@@ -118,9 +124,9 @@ def get_articles(links):
 def yahoonewsdata(option):
     print('Getting news data for ',option)
     url = "https://finance.yahoo.com/quote/%s/?p=%s" % (option, option)
-    links = get_news_headlines(url)
-    df = get_articles(links)
-    return df
+    latestheadlines,links = get_news_headlines(url)
+    #df = get_articles(links)
+    return latestheadlines
 
 def getstocktwitsdata(option):
     url = "https://api.stocktwits.com/api/2/streams/symbol/%s.json?limit=200"%(option)
