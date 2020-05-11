@@ -103,7 +103,7 @@ def render_content(tab):
             html.Div(id='graph-output', style={"height" : "50%", "width" : "90%",'margin-left':100}),
             #html.Div(id='stocktwits-graphoutput',  className='col s12 m6 l6',style={"height": "50%", "width": "50%"}),
 
-            html.Div(children=[html.H1(children="Stock Twits Data",
+            html.Div(children=[html.H1(children="Users Tweet on Selected Ticker",
                                        style={
                                            'textAlign': 'left',
                                            "background": "lightblue"})
@@ -155,7 +155,8 @@ app_colors = {
               [Input('dropdown', 'value')])
 def get_data_table2(option):
     df2 = getstocktwitsdata(option)
-    df = df2[['created_at','body','sentiment']]
+    df = df2[['date','time','body','sentiment']]
+    df.columns = ['UserTweetDate', 'Time', 'Tweet', 'sentiment']
     #df = pd.DataFrame(df2)
     return html.Table(className="responsive-table",
                       children=[
@@ -173,7 +174,7 @@ def get_data_table2(option):
                                       children=[
                                           html.Td(data) for data in d
                                       ], style={'color': app_colors['text'],
-                                                'background-color': quick_color(d[2])}
+                                                'background-color': quick_color(d[3])}
                                   )
                                   for d in df.values.tolist()])
                       ]
@@ -183,8 +184,8 @@ def get_data_table2(option):
               [Input('dropdown', 'value')])
 def get_data_table3(option):
     latestheadlines = yahoonewsheadlines(option)
-    df2 = pd.DataFrame(latestheadlines,columns = ['headline','url'])
-    df = df2[['headline']]
+    df2 = pd.DataFrame(latestheadlines,columns = ['StockNewsHeadlines','url'])
+    df = df2[['StockNewsHeadlines']]
     data_table = dash_table.DataTable(
 
         id='datatable-data',
@@ -306,7 +307,7 @@ def get_data_table(option):
     #print('Index',df2)
     #df = pd.DataFrame(df2,columns = ['url','Headlines'])
     #print('Df Index',df)
-    df = df2[['title','url']]
+    df = df2[['Stock News Article Title','url']]
     dataframe = df
     rows = []
     for i in range(len(dataframe)):

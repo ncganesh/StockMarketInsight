@@ -147,6 +147,8 @@ def getstocktwitsdata(option):
     stocktwitsdata = pd.DataFrame(data['messages'])
     stocktwitsdata.time_UTC = pd.to_datetime(stocktwitsdata.created_at)
     stocktwitsdata['created_at'] = stocktwitsdata.time_UTC.dt.tz_convert('US/Eastern')
+    stocktwitsdata["date"] = [d.date() for d in stocktwitsdata["created_at"]]
+    stocktwitsdata["time"] = [d.time() for d in stocktwitsdata["created_at"]]
     stocktwitsdata['sentiment'] = [get_tweet_sentiment(tweet) for tweet in stocktwitsdata['body']]
     return stocktwitsdata
 
