@@ -193,7 +193,7 @@ def get_data_table3(option):
         columns=[{'id': c, 'name': c} for c in df.columns],
         style_table={'overflowY': 'auto','maxHeight' : 700 },
         style_header={'backgroundColor': 'rgb(0,250,154)'},
-        style_cell={'font_size': '36px', 'backgroundColor': 'rgb(32,178,170)','textAlign': 'left','whiteSpace': 'normal',
+        style_cell={'font_size': '26px', 'backgroundColor': 'rgb(32,178,170)','textAlign': 'left','whiteSpace': 'normal',
             'height': 'auto'},
     )
     return data_table
@@ -307,7 +307,8 @@ def get_data_table(option):
     #print('Index',df2)
     #df = pd.DataFrame(df2,columns = ['url','Headlines'])
     #print('Df Index',df)
-    df = df2[['Stock News Article Title','url']]
+    df = df2[['title','url']]
+    df.columns =['StockNewsArticleTitle','url']
     dataframe = df
     rows = []
     for i in range(len(dataframe)):
