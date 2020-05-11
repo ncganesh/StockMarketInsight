@@ -12,6 +12,7 @@ import plotly.graph_objs as go
 import nltk
 import string, re
 from collections import Counter
+nltk.download('stopwords')
 stopwords = nltk.corpus.stopwords.words('english')
 
 
