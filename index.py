@@ -326,7 +326,7 @@ def get_data_table(option):
         rows.append(html.Tr(row))
     return html.Table(
         # Header
-        [html.Tr([html.Th(col) for col in dataframe.columns], style={'font-size': '200%','color': '#FFFFFF',
+        [html.Tr([html.Th(col) for col in dataframe.columns], style={'font-size': '100%','color': '#FFFFFF',
                                                                      'background-color': '#76e8a8'})] +
 
         rows,
