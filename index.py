@@ -50,7 +50,7 @@ app.layout = html.Div([html.H1('Retail Innovation Center Stock Analysis Dashboar
                    }
                ),
                ' ---|--- Select Ticker here',
-                dcc.Input(id='dropdown', value='WMT',
+                dcc.Input(id='dropdown', value='AAPL',
                                    type='search',
                             style={
                                 'height': '50px',
