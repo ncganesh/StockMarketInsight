@@ -14,6 +14,11 @@ import pandas as pd
 import numpy as np
 from newspaper import Article
 
+import re
+from textblob import TextBlob
+
+
+
 import json
 
 try:
@@ -25,7 +30,7 @@ import requests
 
 
 
-def get_coin_data(crypto='AMZN', start_date='2013-04-28', end_date='2020-04-28', save_data=None):
+def get_coin_data(crypto='AMZN', start_date='2013-04-28', end_date=datetime.now(), save_data=None):
     df2 = yf.download(crypto, start_date, end_date)
     df2['Date'] = df2.index
 
@@ -79,54 +84,60 @@ def get_news_headlines(url):
 
     return latestheadlines, latestheadlines_links
 
-def get_articles(links):
-    # Intialize list articles_info list
-    articles_info = []
-    for i in links:
-        # Intialize dictionary
-        article_dict = {}
-        # Insert link "i" into the dictionary
-        article_dict["link"] = i
-        # Pass link into Article() function
-        art = Article(i)
-        # Download contents of art object
-        art.download()
 
-        # Try/except is included because not all articles can be parsed
+
+data=[]
+def get_articles(urls):
+    for url in urls:
         try:
-            # If article can be successfully parsed then insert its text, title, publish_date, keywords
-            # and summary into corresponding keys
-            art.parse()
-            article_dict["text"] = art.text
-            article_dict["title"] = art.title
-            article_dict["date"] = art.publish_date
-            art.nlp()
-            article_dict["keywords"] = art.keywords
-            article_dict["summary"] = art.summary
-        except newspaper.article.ArticleException:
-            # If article cannot be parse then insert null values for the following keys:
-            # "text", "title", "date", "keywords", and "summary"
-            article_dict["text"] = np.nan
-            article_dict["title"] = np.nan
-            article_dict["date"] = np.nan
-            article_dict["keywords"] = np.nan
-            article_dict["summary"] = np.nan
+            article = Article(url)
+            article.download()
+            article.parse()
+            #article.nlp()
+            print(url,article.title)
+            data.append([article.publish_date,article.title,url])
+        except:
+            print('BAD URL')
+            continue
+    return pd.DataFrame(data)
 
-        # Insert dictionary of article info into the articles_info list
-        articles_info.append(article_dict)
-    # Pass the list of dictionaries into a pandas data frame
-    corpus = pd.DataFrame(articles_info)
-    # Print how long the process took
-    print("Script took {:.2f} seconds to complete".format(time.time() - start))
-    return corpus
+
+def yahoonewsheadlines(option):
+    print('Getting news data for ',option)
+    url = "https://finance.yahoo.com/quote/%s/?p=%s" % (option, option)
+    print('Getting news headlines and url from yahoo news data')
+    latestheadlines,links = get_news_headlines(url)
+    #print(df)
+    return latestheadlines
 
 
 def yahoonewsdata(option):
     print('Getting news data for ',option)
     url = "https://finance.yahoo.com/quote/%s/?p=%s" % (option, option)
+    print('Getting news headlines and url from yahoo news data')
     latestheadlines,links = get_news_headlines(url)
-    #df = get_articles(links)
-    return latestheadlines
+    print('Getting news headlines and url from yahoo news data')
+    df = get_articles(links[0:15])
+    df.columns = ['date','title','url']
+    df.drop_duplicates(subset="title", inplace=True)
+    df = df.sort_values(by = ['date'],ascending=False)
+    print('Extracted news articles')
+    #print(df)
+    return df
+
+
+def clean_tweet(tweet):
+	return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+def get_tweet_sentiment(tweet):
+	analysis = TextBlob(clean_tweet(tweet))
+		# set sentiment
+	if analysis.sentiment.polarity > 0:
+		return 'positive'
+	elif analysis.sentiment.polarity == 0:
+		return 'neutral'
+	else:
+		return 'negative'
 
 def getstocktwitsdata(option):
     url = "https://api.stocktwits.com/api/2/streams/symbol/%s.json?limit=200"%(option)
@@ -134,6 +145,9 @@ def getstocktwitsdata(option):
     response = requests.get(url)
     data = json.loads(response.text)
     stocktwitsdata = pd.DataFrame(data['messages'])
+    stocktwitsdata.time_UTC = pd.to_datetime(stocktwitsdata.created_at)
+    stocktwitsdata['created_at'] = stocktwitsdata.time_UTC.dt.tz_convert('US/Eastern')
+    stocktwitsdata['sentiment'] = [get_tweet_sentiment(tweet) for tweet in stocktwitsdata['body']]
     return stocktwitsdata
 
 
