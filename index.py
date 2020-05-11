@@ -331,7 +331,7 @@ def get_data_table(option):
 
         rows,
         style={'color': 'blue',
-               'background-color': 'lightyellow','font-size': '200%'}
+               'background-color': 'lightyellow','font-size': '100%'}
     )
 
 
