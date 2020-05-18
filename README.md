@@ -5,19 +5,18 @@ The Dashboard is avilable at https://retailstocknews.herokuapp.com/
 Visual Analytics Platform that helps the users  to easily get information about any Selected  Ticker ,
 
 How they are performing and their Historical Stock Price?
-
 How Users are reacting to company at that time?
-
 News Headlines of the Company.
-
 Get All Related News Articles on selected Ticker  and Summarized News using NLP in one table.
-
 Corelate  News  Headlines and User tweets to see  users are tweeting more about some news and their Sentiments.
 
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
 Steps to execute :
 
 Package Required:
-
+--------------------------------
 nltk==3.4.5
 pandas==0.24.2
 plotly==4.1.1
@@ -32,6 +31,8 @@ requests==2.22.0
 beautifulsoup4==4.9.1
 numpy==1.18.4
 gunicorn==20.0.4
+-----------------------------------
+
 
 
 1. Install python requirements using pip : 
