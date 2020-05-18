@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from bs4 import BeautifulSoup
 
+
 #Imports
 import time
 #Assign time.time() object to "start" so we can profile the code.
