@@ -21,8 +21,9 @@ colors = {
     'background2': '#6533FF',
     'text': 'lightblue'
     }
-coin_list = ['AMZN','WMT','COST','KR']
 
+
+# Dash Tutorial - https://medium.com/analytics-vidhya/building-a-dashboard-app-using-plotlys-dash-a-complete-guide-from-beginner-to-pro-61e890bdc423
 
 app.layout = html.Div([html.H1('Retail Innovation Center Stock Analysis Dashboard',
                                style={
