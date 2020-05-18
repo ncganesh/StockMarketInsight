@@ -307,8 +307,8 @@ def get_data_table(option):
     #print('Index',df2)
     #df = pd.DataFrame(df2,columns = ['url','Headlines'])
     #print('Df Index',df)
-    df = df2[['title','url']]
-    df.columns =['StockNewsArticleTitle','url']
+    df = df2[['title','url','summary']]
+    df.columns =['StockNewsArticleTitle','url','Summarized Sentence using NLP']
     dataframe = df
     rows = []
     for i in range(len(dataframe)):

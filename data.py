@@ -93,9 +93,9 @@ def get_articles(urls):
             article = Article(url)
             article.download()
             article.parse()
-            #article.nlp()
+            article.nlp()
             print(url,article.title)
-            data.append([article.publish_date,article.title,url])
+            data.append([article.publish_date,article.title,url,article.summary])
         except:
             print('BAD URL')
             continue
@@ -118,7 +118,7 @@ def yahoonewsdata(option):
     latestheadlines,links = get_news_headlines(url)
     print('Getting news headlines and url from yahoo news data')
     df = get_articles(links[0:15])
-    df.columns = ['date','title','url']
+    df.columns = ['date','title','url','summary']
     df.drop_duplicates(subset="title", inplace=True)
     df = df.sort_values(by = ['date'],ascending=False)
     print('Extracted news articles')
