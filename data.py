@@ -7,6 +7,22 @@ import numpy as np
 from bs4 import BeautifulSoup
 
 
+
+
+import nltk # the Natural Language Toolkit, used for preprocessing
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('punkt')
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
+import re
+import string
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+
+
+
+
 #Imports
 import time
 #Assign time.time() object to "start" so we can profile the code.
@@ -95,8 +111,9 @@ def get_articles(urls):
             article.download()
             article.parse()
             article.nlp()
-            print(url,article.title)
-            data.append([article.publish_date,article.title,url,article.summary])
+            print(url,article.title,article.text)
+            data.append([article.publish_date,article.title,url,article.text,article.summary])
+
         except:
             print('BAD URL')
             continue
@@ -119,11 +136,12 @@ def yahoonewsdata(option):
     latestheadlines,links = get_news_headlines(url)
     print('Getting news headlines and url from yahoo news data')
     df = get_articles(links[0:15])
-    df.columns = ['date','title','url','summary']
+    print(df)
+    df.columns = ['date','title','url','text','summary']
     df.drop_duplicates(subset="title", inplace=True)
     df = df.sort_values(by = ['date'],ascending=False)
     print('Extracted news articles')
-    #print(df)
+    print(df)
     return df
 
 
@@ -154,4 +172,66 @@ def getstocktwitsdata(option):
     return stocktwitsdata
 
 
+def text_lowercase(text):
+    return text.lower()
+# remove numbers
+def remove_numbers(text):
+    result = re.sub(r'\d+', '', text)
+    return result
+# remove punctuation
+def remove_punctuation(text):
+    translator = str.maketrans('', '', string.punctuation)
+    return text.translate(translator)
+# tokenize
+def tokenize(text):
+    text = word_tokenize(text)
+    return text
+# remove stopwords
+stop_words = set(stopwords.words('english'))
+def remove_stopwords(text):
+    text = [i for i in text if not i in stop_words]
+    return text
+# lemmatize
+lemmatizer = WordNetLemmatizer()
+def lemmatize(text):
+    text = [lemmatizer.lemmatize(token) for token in text]
+    return text
 
+def preprocessing(text):
+    text = text_lowercase(text)
+    text = text.replace('\n',' ')
+    text = remove_numbers(text)
+    text = remove_punctuation(text)
+    text = tokenize(text)
+    text = remove_stopwords(text)
+    text = lemmatize(text)
+    text2 = ' '.join(text)
+    return text2
+
+
+def preprocesstextcol_getcounts(data,colname):
+    #data2 = preprocessdata(data)
+    data2 = data.copy()
+    text = data2[colname].apply(lambda x: preprocessing(str(x)))
+    text2 = ' '.join(text)
+    data_c3 = pd.Series([word for word in str(text2).split(' ') if len(word)>3])
+    #df_col_valcnt = data_c3.value_counts(normalize = True).mul(100).round(1).rename_axis('words').to_frame('percentages')
+    #df_col_valcnt = df.sort_values(by = 'percentages')
+    words_withcount = data_c3.value_counts().rename_axis('words').reset_index(name='counts')
+    words_withcount['counts'] = words_withcount['counts'].astype('category')
+    topwords_withcount = words_withcount.head(10)
+    return words_withcount,topwords_withcount
+
+
+import plotly.express as px
+
+def treemap_wordcloudplot(tree_data):
+    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 700)
+    fig.update_layout(
+        #margin=dict(l=20, r=20, t=20, b=20),
+        font=dict(
+            size=25,
+            # color="RebeccaPurple"
+        )
+    )
+    return fig
