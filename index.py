@@ -167,7 +167,7 @@ html.H1("Stock Price on selected Ticker",style={
 dbc.Row(
             [
                 dbc.Col(dbc.Card(stockgraph), style={"height" : "55%", "width" : "70%"},width= 5),
-               dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 5),
+               dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 7),
            ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
 

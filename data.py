@@ -226,7 +226,7 @@ def preprocesstextcol_getcounts(data,colname):
 import plotly.express as px
 
 def treemap_wordcloudplot(tree_data):
-    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 700)
+    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 1800)
     fig.update_layout(
         #margin=dict(l=20, r=20, t=20, b=20),
         font=dict(
