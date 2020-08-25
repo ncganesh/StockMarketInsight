@@ -226,7 +226,7 @@ def get_data_table2(option):
                 { 'selector': '.row-1', 'rule': 'background: #E6A000;' }
             ],
             columns=[{'id': c, 'name': c} for c in filtereddf.columns],
-            page_size=5,
+            page_size=8,
             style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
             style_cell={'font_size': '20px', 'whiteSpace': 'normal',

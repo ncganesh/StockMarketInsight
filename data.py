@@ -2,8 +2,6 @@ import yfinance as yf
 from datetime import datetime
 # Get the data for the stock AAPL
 from PriceIndices import Indices
-import pandas as pd
-import numpy as np
 from bs4 import BeautifulSoup
 
 
@@ -18,7 +16,6 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import re
 import string
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 
