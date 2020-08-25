@@ -145,7 +145,7 @@ html.H1("Stock Price on selected Ticker",style={
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stockgraph), style={"height" : "55%", "width" : "70%"},width= 5),
+                dbc.Col(dbc.Card(stockgraph),width= 5),
                #dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 7),
            ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -162,7 +162,7 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 11),
+                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 9),
                 #dbc.Col(dbc.Card(fig_q2b_avgrating_scatter_plot),width= 5)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
@@ -177,7 +177,7 @@ html.H1("Stock News Article Summary on selected Ticker",style={
 dbc.Row(
             [
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=11),
+                dbc.Col(dbc.Card(newsheadlines_table), width=9),
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
         ),
 
@@ -229,7 +229,7 @@ def get_data_table2(option):
             page_size=8,
             style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
-            style_cell={'font_size': '20px', 'whiteSpace': 'normal',
+            style_cell={'font_size': '13px', 'whiteSpace': 'normal',
                         'height': 'auto', 'padding': '15px', 'width': '350px'},
             #export_format='csv',
             export_format='csv',
@@ -249,7 +249,7 @@ def get_data_table2(option):
                  'textAlign': 'center'},
                 {'if': {'column_id': 'Tweet'},
                  'width': '55%',
-                 'textAlign': 'center'},
+                 'textAlign': 'left'},
                 {'if': {'column_id': 'sentiment'},
                  'width': '15%',
                  'textAlign': 'left'},
@@ -457,7 +457,7 @@ def get_data_table(option):
         page_size=5,
         style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                       'font_size': '18px'},
-        style_cell={'font_size': '18px', 'whiteSpace': 'normal',
+        style_cell={'font_size': '13px', 'whiteSpace': 'normal',
                     'height': 'auto', 'padding': '15px'},
         # export_format='csv',
         export_format='csv',
