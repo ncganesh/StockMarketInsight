@@ -5,6 +5,7 @@ dash_html_components==1.0.3
 yfinance==0.1.54
 newspaper3k==0.2.8
 dash_core_components==1.2.0
+dash_bootstrap_components==0.9.2
 textblob==0.15.3
 #numpy==1.16.2
 requests==2.22.0
