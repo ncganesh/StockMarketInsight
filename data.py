@@ -22,6 +22,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 
+import plotly.express as px
 
 #Imports
 import time
@@ -111,7 +112,7 @@ def get_articles(urls):
             article.download()
             article.parse()
             article.nlp()
-            print(url,article.title,article.text)
+           #print(url,article.title,article.text)
             data.append([article.publish_date,article.title,url,article.text,article.summary])
 
         except:
@@ -136,12 +137,12 @@ def yahoonewsdata(option):
     latestheadlines,links = get_news_headlines(url)
     print('Getting news headlines and url from yahoo news data')
     df = get_articles(links[0:15])
-    print(df)
+    #print(df)
     df.columns = ['date','title','url','text','summary']
     df.drop_duplicates(subset="title", inplace=True)
     df = df.sort_values(by = ['date'],ascending=False)
     print('Extracted news articles')
-    print(df)
+    #print(df)
     return df
 
 
@@ -163,6 +164,8 @@ def getstocktwitsdata(option):
     #url = "https://api.stocktwits.com/api/2/streams/symbol/" + ticker + ".json"
     response = requests.get(url)
     data = json.loads(response.text)
+    print("MESSSAGES")
+    #print(data)
     stocktwitsdata = pd.DataFrame(data['messages'])
     stocktwitsdata.time_UTC = pd.to_datetime(stocktwitsdata.created_at)
     stocktwitsdata['created_at'] = stocktwitsdata.time_UTC.dt.tz_convert('US/Eastern')
@@ -223,10 +226,9 @@ def preprocesstextcol_getcounts(data,colname):
     return words_withcount,topwords_withcount
 
 
-import plotly.express as px
 
 def treemap_wordcloudplot(tree_data):
-    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 1800)
+    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 700)
     fig.update_layout(
         #margin=dict(l=20, r=20, t=20, b=20),
         font=dict(

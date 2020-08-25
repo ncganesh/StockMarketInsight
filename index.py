@@ -1,5 +1,5 @@
-from app import app
-from app import server
+#from app import app
+#from app import server
 import dash_html_components as html
 import dash_core_components as dcc
 from dash.dependencies import Input, Output
@@ -14,6 +14,14 @@ import plotly.graph_objs as go
 import nltk
 import string, re
 from collections import Counter
+import dash
+
+
+external_stylesheets = ['assets/bootsrap.css']
+app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = external_stylesheets)
+server = app.server
+app.config.suppress_callback_exceptions = True
+
 nltk.download('stopwords')
 stopwords = nltk.corpus.stopwords.words('english')
 
@@ -25,27 +33,6 @@ colors = {
     }
 
 
-
-NAVBAR = dbc.Navbar(
-    children=[
-        html.A(
-            dbc.Row(
-                [
-
-                    dbc.Col(
-                        dbc.NavbarBrand("Retail Innovation Center Stock Analysis Dashboard")
-                    ),
-                ],
-                align="center",
-                no_gutters=True,
-            ),
-            href="https://gmuretailtech.000webhostapp.com/",
-        )
-    ],
-    color="#0000A0",
-    dark=True,
-    sticky="top"
-)
 
 stocktwitsoutput_table = [
     dbc.CardBody(
@@ -72,35 +59,24 @@ newssummary_table = [
 
 stockgraph = [
     dbc.CardBody(
-        html.Label( id='graph-output')
+        dcc.Graph( id='graph-output')
          #html.Div(id='graph-output')
 
     )
 ]
 
 
+stocktwitsgraph = [
+    dbc.CardBody(
+        dcc.Graph( id='stocktwits-graphoutput')
+         #html.Div(id='stocktwits-graphoutput')
+
+    )
+]
 
 
-pd.options.mode.chained_assignment = None
 
-option ='AMZN'
-df2 = getstocktwitsdata(option)
-data = df2[['date','time','body','sentiment']]
-colname = 'body'
-words_withcount,topwords_withcount = preprocesstextcol_getcounts(data,colname)
-topwords_withcount['column'] = 'StockTwitsText'
-
-
-df2 = yahoonewsdata(option)
-print('DF2',df2)
-data = df2[['title','url','text','summary']]
-data.columns =['StockNewsArticleTitle','url','text','Summarized Sentence using NLP']
-
-colname = 'text'
-words_withcount,topwords_withcount1 = preprocesstextcol_getcounts(data,colname)
-topwords_withcount1['column'] = 'NewsArticleText'
-
-tree_data = pd.concat([topwords_withcount,topwords_withcount1])
+'''
 fig_treemap_all = treemap_wordcloudplot(tree_data)
 
 
@@ -114,10 +90,13 @@ fig_treemap_plot = [
     )
 ]
 
+'''
 
-
-BODY = html.Div([
-
+app.layout = html.Div([
+html.H1('Retail Innovation Center Stock Analysis Dashboard',
+                               style={
+                                      'textAlign': 'center',
+                                      "background": "green"}),
 dbc.Row(
             [
 dcc.DatePickerRange(
@@ -161,19 +140,19 @@ dcc.Input(id='dropdown', value='AMZN',
 ]),
 
 html.H1("Stock Price on selected Ticker",style={
-                                      'textAlign': 'center',"background": "#E6A000"}),
+                                      'textAlign': 'center',"background": "#DBA21F"}),
 
 
 dbc.Row(
             [
                 dbc.Col(dbc.Card(stockgraph), style={"height" : "55%", "width" : "70%"},width= 5),
-               dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 7),
+               #dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 7),
            ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
 
 html.Div(style={"border":"2px black solid"}),
 html.H1("Users Tweet on Selected Ticker",style={
-                                      'textAlign': 'center',"background": "#E6A000"}),
+                                      'textAlign': 'center',"background": "#DBA21F"}),
 
 #html.Br(),html.Br(),html.Br(),
 
@@ -183,7 +162,7 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 9),
+                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 11),
                 #dbc.Col(dbc.Card(fig_q2b_avgrating_scatter_plot),width= 5)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
@@ -192,13 +171,13 @@ dbc.Row(
 html.Div(style={"border":"2px black solid"}),
 
 html.H1("Stock News Article Summary on selected Ticker",style={
-                                      'textAlign': 'center',"background": "#E6A000"}),
+                                      'textAlign': 'center',"background": "#DBA21F"}),
 
 
 dbc.Row(
             [
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=9),
+                dbc.Col(dbc.Card(newsheadlines_table), width=11),
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
         ),
 
@@ -219,38 +198,12 @@ html.Div(style={"border":"2px black solid"}),
 
 
 
-
-def quick_color(s):
-    # except return bg as app_colors['background']
-    if s == 'positive':
-        # positive
-        return "#002C0D"
-    elif s == 'negative':
-        # negative:
-        return "#270000"
-    elif s == 'neutral':
-        return 'grey'
-
-app_colors = {
-    'background': '#0C0F0A',
-    'text': '#FFFFFF',
-    'sentiment-plot':'#41EAD4',
-    'volume-bar':'#FBFC74',
-    'someothercolor':'#FFE4C4',
-}
-
-
-app.layout = html.Div([NAVBAR,BODY])
-
-
-
-
 @app.callback(Output('stocktwits-output', 'children'),
               [Input('dropdown', 'value')])
 def get_data_table2(option):
     df2 = getstocktwitsdata(option)
-    print('---STOCKTWITS---')
-    print(df2)
+    #print('---STOCKTWITS---')
+    #print(df2)
     df = df2[['date','time','body','sentiment']]
     df.columns = ['UserTweetDate', 'Time', 'Tweet', 'sentiment']
 
@@ -273,11 +226,11 @@ def get_data_table2(option):
                 { 'selector': '.row-1', 'rule': 'background: #E6A000;' }
             ],
             columns=[{'id': c, 'name': c} for c in filtereddf.columns],
-            page_size=10,
-            style_header={'backgroundColor': '#009EEA', 'fontWeight': 'bold', 'border': '1px solid black',
+            page_size=5,
+            style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
             style_cell={'font_size': '20px', 'whiteSpace': 'normal',
-                        'height': 'auto', 'padding': '15px', 'width': '300px','maxWidth': '275px'},
+                        'height': 'auto', 'padding': '15px', 'width': '350px'},
             #export_format='csv',
             export_format='csv',
             export_headers='display',
@@ -289,10 +242,10 @@ def get_data_table2(option):
             ],
             style_cell_conditional=[
                 {'if': {'column_id': 'UserTweetDate'},
-                 'width': '15%',
+                 'width': '10%',
                  'textAlign': 'center'},
                 {'if': {'column_id': 'Time'},
-                 'width': '15%',
+                 'width': '10%',
                  'textAlign': 'center'},
                 {'if': {'column_id': 'Tweet'},
                  'width': '55%',
@@ -316,8 +269,8 @@ def get_data_table2(option):
               [Input('dropdown', 'value')])
 def get_data_table3(option):
     latestheadlines = yahoonewsheadlines(option)
-    print('-----LATEST HEADLINES---------------')
-    print(latestheadlines)
+    #print('-----LATEST HEADLINES---------------')
+    #print(latestheadlines)
     df2 = pd.DataFrame(latestheadlines,columns = ['StockNewsHeadlines','url'])
     #df = df2[['StockNewsHeadlines']]
     filtereddf = df2.copy()
@@ -343,7 +296,7 @@ def get_data_table3(option):
             style_header={'backgroundColor': '#009EEA', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
             style_cell={'font_size': '13px', 'whiteSpace': 'normal',
-                        'height': 'auto', 'padding': '15px', 'width': '300px','maxWidth': '275px'},
+                        'height': 'auto', 'padding': '15px'},
             #export_format='csv',
             export_format='csv',
             export_headers='display',
@@ -351,8 +304,23 @@ def get_data_table3(option):
                 {
                     'if': {'row_index': 'odd'},
                     'backgroundColor': 'rgb(248, 248, 248)'
-                }
+                },
             ],
+
+        style_cell_conditional=[
+            {'if': {'column_id': 'UserTweetDate'},
+             'width': '10%',
+             'textAlign': 'center'},
+            {'if': {'column_id': 'Time'},
+             'width': '10%',
+             'textAlign': 'center'},
+            {'if': {'column_id': 'Tweet'},
+             'width': '55%',
+             'textAlign': 'center'},
+            {'if': {'column_id': 'sentiment'},
+             'width': '15%',
+             'textAlign': 'left'},
+        ]
 
         )
 
@@ -362,7 +330,7 @@ def get_data_table3(option):
 
 
 
-@app.callback(Output('stocktwits-graphoutput', 'children'),
+@app.callback(Output('stocktwits-graphoutput', 'figure'),
               [Input('dropdown', 'value')])
 def render_graph2(value):
     df2 = getstocktwitsdata(value)
@@ -414,26 +382,23 @@ def render_graph2(value):
 
 
 
-
-@app.callback(Output('graph-output', 'children'),
+@app.callback(Output('graph-output', 'figure'),
               [Input('date-input', 'start_date'),
                Input('date-input', 'end_date'),
                Input('dropdown', 'value')])
 def render_graph(start_date, end_date, option):
-    df = get_coin_data(crypto=option,save_data=None)
+    df = get_coin_data(crypto=option, start_date=start_date, end_date=end_date, save_data=None)
     data = df[(df.date >= start_date) & (df.date <= end_date)]
-
     return dcc.Graph(
         id='graph-1',
         figure={
             'data': [
-                {'x': data['date'], 'y': data['price'], 'type': 'line', 'name': 'value'},
+                {'x': data['date'], 'y': data['price'], 'type': 'line', 'name': 'value1'},
             ],
             'layout': {
                 'title': 'Price Vs Time ',
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
-                'width':200,
                 'font': {
                     'color': colors['text'],
                     'size': 18
@@ -457,69 +422,65 @@ def render_graph(start_date, end_date, option):
         }
     )
 
-
 @app.callback(Output('table-output', 'children'),
               [Input('dropdown', 'value')])
 
 def get_data_table(option):
     df2 = yahoonewsdata(option)
-    print('DF2',df2)
-    #df2.columns = ['article.publish_date','article.title','url']
-    #print('Index',df2)
-    #df = pd.DataFrame(df2,columns = ['url','Headlines'])
-    #print('Df Index',df)
-    df = df2[['title','url','text','summary']]
-    df.columns =['StockNewsArticleTitle','url','text','Summarized Sentence using NLP']
+    #print('DF2', df2)
+    # df2.columns = ['article.publish_date','article.title','url']
+    # print('Index',df2)
+    # df = pd.DataFrame(df2,columns = ['url','Headlines'])
+    # print('Df Index',df)
+    df = df2[['title', 'url',  'summary']]
+    df.columns = ['StockNewsArticleTitle', 'url','Summarized Sentence using NLP']
     filtereddf = df.copy()
     filteredtable = dash_table.DataTable(
 
-            id='datatable-output',
-            style_data={
-                'whiteSpace': 'normal',
-                'height': 'auto',
-                'lineHeight': '15px'
-            },
+        id='datatable-output',
+        style_data={
+            'whiteSpace': 'normal',
+            'height': 'auto'
+        },
 
-            data=filtereddf.to_dict('records'),
+        data=filtereddf.to_dict('records'),
+        columns=[{'id': c, 'name': c} for c in filtereddf.columns],
+        #columns=[{'name': 'Link', 'id': 'Link', 'type': 'text', 'presentation': 'markdown'}],
 
-            filter_action='native',
+        filter_action='native',
+
+        css=[
+            {'selector': '.row-1', 'rule': 'background: #E6A000;'}
+        ],
 
 
-            css=[
-                { 'selector': '.row-1', 'rule': 'background: #E6A000;' }
-            ],
-            columns=[{'id': c, 'name': c} for c in filtereddf.columns],
-            page_size=10,
-            style_header={'backgroundColor': '#009EEA', 'fontWeight': 'bold', 'border': '1px solid black',
-                          'font_size': '18px'},
-            style_cell={'font_size': '18px', 'whiteSpace': 'normal',
-                        'height': 'auto', 'padding': '15px', 'width': '300px','maxWidth': '275px'},
-            #export_format='csv',
-            export_format='csv',
-            export_headers='display',
-            #style_data_conditional=[
-            #    {
-            #        'if': {'row_index': 'odd'},
-            #        'backgroundColor': 'rgb(248, 248, 248)'
-            #    }
-            #],
-            style_cell_conditional=[
-                {'if': {'column_id': 'StockNewsArticleTitle'},
-                 'width': '10%',
-                 'textAlign': 'center'},
-                {'if': {'column_id': 'url'},
-                 'width': '10%',
-                 'textAlign': 'center'},
-                {'if': {'column_id': 'Summarized Sentence using NLP'},
-                 'width': '20%',
-                 'textAlign': 'center'},
-                 {'if': {'column_id': 'text'},
-                  'width': '60%',
-                  'textAlign': 'center'},
+        page_size=5,
+        style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
+                      'font_size': '18px'},
+        style_cell={'font_size': '18px', 'whiteSpace': 'normal',
+                    'height': 'auto', 'padding': '15px'},
+        # export_format='csv',
+        export_format='csv',
+        # style_data_conditional=[
+        #    {
+        #        'if': {'row_index': 'odd'},
+        #        'backgroundColor': 'rgb(248, 248, 248)'
+        #    }
+        # ],
+        style_cell_conditional=[
+            {'if': {'column_id': 'StockNewsArticleTitle'},
+             'width': '5%',
+             'textAlign': 'left'},
+            {'if': {'column_id': 'url'},
+             'width': '5%',
+             'textAlign': 'left'},
+            {'if': {'column_id': 'Summarized Sentence using NLP'},
+             'width': '90%',
+             'textAlign': 'left'},
 
-            ]
+        ]
 
-        )
+    )
 
     return filteredtable
 
