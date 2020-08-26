@@ -229,7 +229,7 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 10)
+                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 11)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -263,7 +263,7 @@ html.H1("Stock News Article Summary on selected Ticker",style={
 dbc.Row(
             [
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=10)
+                dbc.Col(dbc.Card(newsheadlines_table), width=11)
 
 
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
@@ -329,7 +329,9 @@ def get_data_table2(option):
             style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
             style_cell={'font_size': '13px', 'whiteSpace': 'normal',
-                        'height': 'auto', 'padding': '15px', 'width': '350px'},
+                        'height': 'auto', 'padding': '15px'
+
+                        },
             #export_format='csv',
             export_format='csv',
             export_headers='display',
@@ -394,7 +396,7 @@ def get_data_table3(option):
             page_size=10,
             style_header={'backgroundColor': '#009EEA', 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
-            style_cell={'font_size': '13px', 'whiteSpace': 'normal',
+            style_cell={'font_size': '11px', 'whiteSpace': 'normal',
                         'height': 'auto', 'padding': '15px'},
             #export_format='csv',
             export_format='csv',
@@ -503,7 +505,7 @@ def get_data_table(option):
         page_size=5,
         style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
                       'font_size': '18px'},
-        style_cell={'font_size': '13px', 'whiteSpace': 'normal',
+        style_cell={'font_size': '11px', 'whiteSpace': 'normal',
                     'height': 'auto', 'padding': '15px'},
         # export_format='csv',
         export_format='csv',
@@ -631,7 +633,7 @@ def update_dropdown(value):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
 
 
