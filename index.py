@@ -229,13 +229,18 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 6),
-                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 2.5),
-            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 2.5)
+                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 10)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
 
+dbc.Row(
+            [
+                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 5),
+            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 5)
+
+            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
+        ),
 
 html.Div(style={"border":"2px black solid"}),
 html.H1("Stock Twits and News Article Corelation ",style={
@@ -258,13 +263,22 @@ html.H1("Stock News Article Summary on selected Ticker",style={
 dbc.Row(
             [
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=6),
-                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=2.5),
-                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=2.5),
+                dbc.Col(dbc.Card(newsheadlines_table), width=10)
 
 
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
         ),
+
+
+dbc.Row(
+            [
+                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=5),
+                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=5),
+
+
+            ], style={"marginTop": 30,"marginBottom": 30},justify="around",
+        ),
+
 
 html.Div(style={"border":"2px black solid"}),
 
