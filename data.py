@@ -17,7 +17,7 @@ from nltk.stem import WordNetLemmatizer
 import re
 import string
 
-
+import plotly.graph_objects as go
 
 import plotly.express as px
 
@@ -33,6 +33,7 @@ import re
 from textblob import TextBlob
 
 
+from sklearn.feature_extraction.text import CountVectorizer
 
 import json
 
@@ -233,4 +234,42 @@ def treemap_wordcloudplot(tree_data):
             # color="RebeccaPurple"
         )
     )
+    return fig
+
+
+
+
+def get_top_n_bigram(corpus, ngramvalue,n):
+    vec = CountVectorizer(ngram_range=(ngramvalue, ngramvalue)).fit(corpus)
+    bag_of_words = vec.transform(corpus)
+    sum_words = bag_of_words.sum(axis=0)
+    words_freq = [(word, sum_words[0, idx]) for word, idx in vec.vocabulary_.items()]
+    words_freq =sorted(words_freq, key = lambda x: x[1], reverse=True)
+    return words_freq[:n]
+
+def get_ngramcounts(data,colname,ngramvalue,n):
+    text = data[colname].apply(lambda x: preprocessing(str(x)))
+    common_words = get_top_n_bigram(text, ngramvalue,n)
+    words_withcount =  pd.DataFrame(common_words, columns = ['words' , 'counts'])
+    words_withcount['counts'] = words_withcount['counts'].astype('category')
+    topwords_withcount = words_withcount.head(n)
+    return topwords_withcount
+
+def ngram_plot(data,colname,ngramvalue,n,title):
+    topwords_withcount = get_ngramcounts(data,colname,ngramvalue,n)
+    y = topwords_withcount.words
+    x = topwords_withcount.counts
+    trace1 = go.Bar(y = y, x = x,orientation='h',marker = dict(color='#009EEA'),text = y)
+    data = [trace1]
+    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=18))
+    fig = go.Figure(data = data, layout = layout)
+    return fig
+
+
+
+
+def pie_dropdownall(sentvalues, colors1):
+    labels = ["positive","neutral","negative"]
+    values = list(sentvalues)
+    fig =go.Figure(data=[go.Pie(labels=labels, values=values,marker=dict(colors=colors1, line=dict(color='#070707', width=1)))])
     return fig

@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 from datetime import datetime
 import dash_table
 import pandas as pd
-from data import yahoonewsdata,get_coin_data,getstocktwitsdata,yahoonewsheadlines
+#from data import yahoonewsdata,get_coin_data,getstocktwitsdata,yahoonewsheadlines
 from data import *
 import newspaper
 import plotly.graph_objs as go
@@ -18,7 +18,7 @@ import dash
 
 
 external_stylesheets = ['assets/bootsrap.css']
-app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = external_stylesheets)
+app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = [dbc.themes.BOOTSTRAP])
 server = app.server
 app.config.suppress_callback_exceptions = True
 
@@ -74,11 +74,24 @@ stocktwitsgraph = [
     )
 ]
 
+pd.options.mode.chained_assignment = None
 
+df2 = getstocktwitsdata('AMZN')
+df_stocktwits = df2[['created_at', 'body', 'sentiment']]
+colname = 'body'
+words_withcount,topwords_stocktwits = preprocesstextcol_getcounts(df_stocktwits,colname)
+topwords_stocktwits['column'] = 'sTOCKtWITS'
 
-'''
+df2 = yahoonewsdata('AMZN')
+df_yahoonews = df2[['title', 'url','text' ,'summary']]
+colname = 'text'
+words_withcount,topwords_yahoonews = preprocesstextcol_getcounts(df_yahoonews,colname)
+topwords_yahoonews['column'] = 'YahooNews'
+
+tree_data = pd.concat([topwords_stocktwits,topwords_yahoonews])
+
+print(tree_data)
 fig_treemap_all = treemap_wordcloudplot(tree_data)
-
 
 fig_treemap_plot = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
@@ -90,22 +103,83 @@ fig_treemap_plot = [
     )
 ]
 
-'''
+fig_bigramplot = [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='bigramplot')
+            ,
+        ],
+    )
+]
+
+
+
+
+sentimentpiestocktwits_fig = [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='sentimentpiestocktwits')
+            ,
+        ],
+    )
+]
+
+yahoonewsunigramplot_fig = [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='yahoonewsunigramplot')
+            ,
+        ],
+    )
+]
+
+
+stockwitsunigramplot_fig = [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='stockwitsunigramplot')
+            ,
+        ],
+    )
+]
+
+sentimentpieyahoonews_fig = [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='yahoonews_pie')
+            ,
+        ],
+    )
+]
+
+stocktwitsbigramplot_fig =  [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='stocktwitsbigramplot')
+            ,
+        ],
+    )
+]
+
 
 app.layout = html.Div([
 html.H1('Retail Innovation Center Stock Analysis Dashboard',
                                style={
                                       'textAlign': 'center',
                                       "background": "green"}),
-dbc.Row(
-            [
 dcc.DatePickerRange(
                    id='date-input',
                    stay_open_on_select=False,
-                   min_date_allowed=datetime(2014, 8, 10),
+                   min_date_allowed=datetime(2020, 8, 12),
                    max_date_allowed=datetime.now(),
                    initial_visible_month=datetime.now(),
-                   start_date=datetime(2020, 8, 13),
+                   start_date=datetime(2020, 8, 22),
                    end_date=datetime.now(),
                    number_of_months_shown=2,
                    month_format='MMMM,YYYY',
@@ -115,11 +189,11 @@ dcc.DatePickerRange(
                           'font-size': '15px',
                           'margin': 10,
                           'padding': '8px',
-                          'background': 'lightblue',
+                          'background': '#009EEA',
                    }
                ),
-
-dcc.Input(id='dropdown', value='AMZN',
+               ' ---|--- Select Ticker here',
+                dcc.Input(id='dropdown', value='AAPL',
                                    type='search',
                             style={
                                 'height': '50px',
@@ -129,7 +203,7 @@ dcc.Input(id='dropdown', value='AMZN',
                                 'color': 'gray',
                                 'margin': 0,
                                 'padding': '8px',
-                                'background': 'lightblue',
+                                'background': 'green',
                                 'position': 'middle',
                                 'display': 'inline-block',
                                 'width': '150px',
@@ -137,18 +211,11 @@ dcc.Input(id='dropdown', value='AMZN',
 
                                 }
                             ),
-]),
-
-html.H1("Stock Price on selected Ticker",style={
-                                      'textAlign': 'center',"background": "#DBA21F"}),
 
 
-dbc.Row(
-            [
-                dbc.Col(dbc.Card(stockgraph),width= 5),
-               #dbc.Col(dbc.Card(fig_treemap_plot),style={"height" : "55%", "width" : "70%"},width= 7),
-           ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
-        ),
+
+
+
 
 html.Div(style={"border":"2px black solid"}),
 html.H1("Users Tweet on Selected Ticker",style={
@@ -162,8 +229,22 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 9),
-                #dbc.Col(dbc.Card(fig_q2b_avgrating_scatter_plot),width= 5)
+                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 6),
+                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 2.5),
+            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 2.5)
+
+            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
+        ),
+
+
+html.Div(style={"border":"2px black solid"}),
+html.H1("Stock Twits and News Article Corelation ",style={
+                                      'textAlign': 'center',"background": "#DBA21F"}),
+
+dbc.Row(
+            [
+                dbc.Col(dbc.Card(fig_bigramplot), width= 5),
+                dbc.Col(dbc.Card(stocktwitsbigramplot_fig),width= 5)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -177,7 +258,11 @@ html.H1("Stock News Article Summary on selected Ticker",style={
 dbc.Row(
             [
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=9),
+                dbc.Col(dbc.Card(newsheadlines_table), width=6),
+                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=2.5),
+                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=2.5),
+
+
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
         ),
 
@@ -329,59 +414,6 @@ def get_data_table3(option):
 
 
 
-
-@app.callback(Output('stocktwits-graphoutput', 'figure'),
-              [Input('dropdown', 'value')])
-def render_graph2(value):
-    df2 = getstocktwitsdata(value)
-    df = df2[['created_at', 'body', 'sentiment']]
-
-    def remove_punct(text):
-        text = "".join([char for char in text if char not in string.punctuation])
-        text = re.sub('[0-9]+', '', text)
-        return text
-
-    stopword = nltk.corpus.stopwords.words('english')
-
-    def tokenization(text):
-        text = re.split('\W+', text)
-        return text
-
-    def remove_stopwords(text):
-        text = [word for word in text if word not in stopword]
-        return text
-
-
-    df['Tweet_punct'] = df['body'].apply(lambda x: remove_punct(x))
-    df['Tweet_tokenized'] = df['Tweet_punct'].apply(lambda x: tokenization(x.lower()))
-    df['Tweet_nonstop'] = df['Tweet_tokenized'].apply(lambda x: remove_stopwords(x))
-
-    lis = []
-    for i in range(len(df)):
-        lis.extend(df['Tweet_nonstop'][i])
-
-
-    lis2 = Counter(lis)
-    lis3 = lis2.most_common(15)
-
-    data = [go.Bar(
-        x=[i[0] for i in lis3],
-        y=[i[1] for i in lis3],
-        marker=dict(colorscale='Jet'
-                    ),
-        text='Word counts'
-    )]
-    return dcc.Graph(
-        id='example-graph',
-        figure={
-            'data': data,
-            'layout':
-            go.Layout(title='Most Frequently Used Words by Users', barmode='stack')
-        })
-
-
-
-
 @app.callback(Output('graph-output', 'figure'),
               [Input('date-input', 'start_date'),
                Input('date-input', 'end_date'),
@@ -485,5 +517,123 @@ def get_data_table(option):
     return filteredtable
 
 
+@app.callback(
+    Output('bigramplot', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+        title = value + ' News Article Bigrams'
+        ngramvalue = 2
+        n = 3
+        yahoonewsdf = yahoonewsdata(value)
+        yahoonews_df = yahoonewsdf[['title', 'url', 'text', 'summary']]
+        fig = ngram_plot(yahoonews_df, 'text', ngramvalue, n, title)
+        return fig
+
+
+
+@app.callback(
+    Output('stocktwitsbigramplot', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+    title = value + ' Bigrams'
+    ngramvalue = 2
+    n = 5
+    stocktwitsdf = getstocktwitsdata(value)
+    df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
+    fig = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
+    return fig
+@app.callback(
+    Output('stockwitsunigramplot', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+        title = value + ' Stock Twits Bigrams'
+        ngramvalue = 1
+        n = 5
+        stocktwitsdf = getstocktwitsdata(value)
+        df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
+        fig = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
+        return fig
+
+
+@app.callback(
+    Output('sentimentpiestocktwits', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+    colors1 = ['rgb(0, 0, 160)', 'rgb(230, 160, 0)', 'rgb(0, 158,234)']
+    stocktwitsdf = getstocktwitsdata(value)
+    df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
+    stcounts = df_stocktwits['sentiment'].value_counts().rename_axis('sentiments_st').to_frame(
+        'counts')
+    print(stcounts['counts'])
+    #print(df_stocktwits)
+    print("Plotting PIE")
+    fig1 = pie_dropdownall(stcounts['counts'],colors1)
+    return fig1
+
+
+
+
+@app.callback(
+    Output('yahoonewsunigramplot', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+        title = value + ' News Article Unigrams'
+        ngramvalue = 1
+        n = 5
+        df2 = yahoonewsdata(value)
+        df_yahoonews = df2[['title', 'url', 'text', 'summary']]
+        fig = ngram_plot(df_yahoonews, 'text', ngramvalue, n, title)
+        return fig
+
+
+@app.callback(
+    Output('yahoonews_pie', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_dropdown(value):
+    colors1 = ['rgb(0, 0, 160)', 'rgb(230, 160, 0)', 'rgb(0, 158,234)']
+    yahoonewsdatadf = yahoonewsdata(value)
+    df_yahoonewsdata = yahoonewsdatadf[['title', 'url', 'text', 'summary']]
+    df_yahoonewsdata['sentiment'] = [get_tweet_sentiment(tweet) for tweet in df_yahoonewsdata['text']]
+    stcounts = df_yahoonewsdata['sentiment'].value_counts().rename_axis('sentiments_st').to_frame(
+        'counts')
+    print(stcounts['counts'])
+    #print(df_stocktwits)
+    print("Plotting PIE")
+    fig1 = pie_dropdownall(stcounts['counts'],colors1)
+    return fig1
+
+
+
 if __name__ == '__main__':
     app.run_server(debug=True)
+
+
+
+
+html.H1("Stock Price on selected Ticker",style={
+                                      'textAlign': 'center',"background": "#DBA21F"}),
+
+'''
+dbc.Row(
+            [
+                dbc.Col(dbc.Card(stockgraph),width= 5),
+               #dbc.Col(dbc.Card(fig_treemap_plot),width= 5),
+           ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
+        ),
+
+
+dbc.Col(dbc.Card(fig_treemap_plot),width= 5),
+
+'''
