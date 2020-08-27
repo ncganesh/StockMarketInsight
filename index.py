@@ -18,7 +18,8 @@ import dash
 
 
 external_stylesheets = ['assets/bootsrap.css']
-app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = [dbc.themes.BOOTSTRAP])
+#app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = [dbc.themes.BOOTSTRAP])
+app = dash.Dash(__name__, external_stylesheets=['assets/bootstrap.css'])
 server = app.server
 app.config.suppress_callback_exceptions = True
 
@@ -189,6 +190,7 @@ dcc.DatePickerRange(
                           'font-size': '15px',
                           'margin': 10,
                           'padding': '8px',
+                            'textAlign' :  'center',
                           'background': '#009EEA',
                    }
                ),
@@ -206,6 +208,7 @@ dcc.DatePickerRange(
                                 'background': 'green',
                                 'position': 'middle',
                                 'display': 'inline-block',
+                                'textAlign' :  'center',
                                 'width': '150px',
                                 'vertical-align': 'middle'
 
@@ -480,8 +483,8 @@ def get_data_table(option):
     # print('Index',df2)
     # df = pd.DataFrame(df2,columns = ['url','Headlines'])
     # print('Df Index',df)
-    df = df2[['title', 'url',  'summary']]
-    df.columns = ['StockNewsArticleTitle', 'url','Summarized Sentence using NLP']
+    df = df2[['date','title', 'url',  'summary']]
+    df.columns = ['Date','StockNewsArticleTitle', 'url','Summarized Sentence using NLP']
     filtereddf = df.copy()
     filteredtable = dash_table.DataTable(
 
@@ -496,6 +499,7 @@ def get_data_table(option):
         #columns=[{'name': 'Link', 'id': 'Link', 'type': 'text', 'presentation': 'markdown'}],
 
         filter_action='native',
+        sort_action = 'native',
 
         css=[
             {'selector': '.row-1', 'rule': 'background: #E6A000;'}
@@ -534,7 +538,10 @@ def get_data_table(option):
 
 
 @app.callback(
-    Output('bigramplot', 'figure'),
+    [Output('bigramplot', 'figure'),
+    Output('yahoonewsunigramplot', 'figure'),
+    Output('yahoonews_pie', 'figure')
+     ],
     [Input('dropdown', 'value')]
     )
 
@@ -545,12 +552,28 @@ def update_dropdown(value):
         yahoonewsdf = yahoonewsdata(value)
         yahoonews_df = yahoonewsdf[['title', 'url', 'text', 'summary']]
         fig = ngram_plot(yahoonews_df, 'text', ngramvalue, n, title)
-        return fig
+
+        title2 = value + ' News Article Unigrams'
+        uningramvalue = 1
+        n = 5
+        fig2 = ngram_plot(yahoonews_df, 'text', uningramvalue, n, title2)
+        colors1 = ['rgb(0, 0, 160)', 'rgb(230, 160, 0)', 'rgb(0, 158,234)']
+        yahoonews_df['sentiment'] = [get_tweet_sentiment(tweet) for tweet in yahoonews_df['text']]
+        stcounts = yahoonews_df['sentiment'].value_counts().rename_axis('sentiments_st').to_frame(
+            'counts')
+        print(stcounts['counts'])
+        # print(df_stocktwits)
+        print("Plotting PIE")
+        fig3 = pie_dropdownall(stcounts['counts'], colors1)
+        return fig,fig2,fig3
+
 
 
 
 @app.callback(
-    Output('stocktwitsbigramplot', 'figure'),
+    [Output('stocktwitsbigramplot', 'figure'),
+    Output('stockwitsunigramplot', 'figure'),
+     Output('sentimentpiestocktwits', 'figure')],
     [Input('dropdown', 'value')]
     )
 
@@ -561,75 +584,21 @@ def update_dropdown(value):
     stocktwitsdf = getstocktwitsdata(value)
     df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
     fig = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
-    return fig
-@app.callback(
-    Output('stockwitsunigramplot', 'figure'),
-    [Input('dropdown', 'value')]
-    )
 
-def update_dropdown(value):
-        title = value + ' Stock Twits Bigrams'
-        ngramvalue = 1
-        n = 5
-        stocktwitsdf = getstocktwitsdata(value)
-        df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
-        fig = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
-        return fig
+    title = value + ' Stock Twits Bigrams'
+    ngramvalue = 1
+    n = 5
+    fig2 = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
 
-
-@app.callback(
-    Output('sentimentpiestocktwits', 'figure'),
-    [Input('dropdown', 'value')]
-    )
-
-def update_dropdown(value):
     colors1 = ['rgb(0, 0, 160)', 'rgb(230, 160, 0)', 'rgb(0, 158,234)']
-    stocktwitsdf = getstocktwitsdata(value)
-    df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
     stcounts = df_stocktwits['sentiment'].value_counts().rename_axis('sentiments_st').to_frame(
         'counts')
     print(stcounts['counts'])
-    #print(df_stocktwits)
+    # print(df_stocktwits)
     print("Plotting PIE")
-    fig1 = pie_dropdownall(stcounts['counts'],colors1)
-    return fig1
+    fig3 = pie_dropdownall(stcounts['counts'], colors1)
 
-
-
-
-@app.callback(
-    Output('yahoonewsunigramplot', 'figure'),
-    [Input('dropdown', 'value')]
-    )
-
-def update_dropdown(value):
-        title = value + ' News Article Unigrams'
-        ngramvalue = 1
-        n = 5
-        df2 = yahoonewsdata(value)
-        df_yahoonews = df2[['title', 'url', 'text', 'summary']]
-        fig = ngram_plot(df_yahoonews, 'text', ngramvalue, n, title)
-        return fig
-
-
-@app.callback(
-    Output('yahoonews_pie', 'figure'),
-    [Input('dropdown', 'value')]
-    )
-
-def update_dropdown(value):
-    colors1 = ['rgb(0, 0, 160)', 'rgb(230, 160, 0)', 'rgb(0, 158,234)']
-    yahoonewsdatadf = yahoonewsdata(value)
-    df_yahoonewsdata = yahoonewsdatadf[['title', 'url', 'text', 'summary']]
-    df_yahoonewsdata['sentiment'] = [get_tweet_sentiment(tweet) for tweet in df_yahoonewsdata['text']]
-    stcounts = df_yahoonewsdata['sentiment'].value_counts().rename_axis('sentiments_st').to_frame(
-        'counts')
-    print(stcounts['counts'])
-    #print(df_stocktwits)
-    print("Plotting PIE")
-    fig1 = pie_dropdownall(stcounts['counts'],colors1)
-    return fig1
-
+    return fig,fig2,fig3
 
 
 if __name__ == '__main__':

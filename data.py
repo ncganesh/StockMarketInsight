@@ -134,7 +134,7 @@ def yahoonewsdata(option):
     print('Getting news headlines and url from yahoo news data')
     latestheadlines,links = get_news_headlines(url)
     print('Getting news headlines and url from yahoo news data')
-    df = get_articles(links[0:15])
+    df = get_articles(links)
     #print(df)
     df.columns = ['date','title','url','text','summary']
     df.drop_duplicates(subset="title", inplace=True)
