@@ -239,8 +239,8 @@ dbc.Row(
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 5),
-            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 5)
+                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 3.5),
+            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 3.5)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -251,8 +251,8 @@ html.H1("Stock Twits and News Article Corelation ",style={
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(fig_bigramplot), width= 5),
-                dbc.Col(dbc.Card(stocktwitsbigramplot_fig),width= 5)
+                dbc.Col(dbc.Card(fig_bigramplot), width= 4),
+                dbc.Col(dbc.Card(stocktwitsbigramplot_fig),width= 4)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -275,8 +275,8 @@ dbc.Row(
 
 dbc.Row(
             [
-                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=5),
-                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=5),
+                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=3),
+                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=3),
 
 
             ], style={"marginTop": 30,"marginBottom": 30},justify="around",
