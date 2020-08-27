@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import nltk # the Natural Language Toolkit, used for preprocessing
 nltk.download('stopwords')
 nltk.download('wordnet')
-#nltk.download('punkt')
+nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
