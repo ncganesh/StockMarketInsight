@@ -221,7 +221,7 @@ import plotly.graph_objects as go
 
 import plotly.express as px
 def treemap_wordcloudplot(tree_data):
-    fig = px.treemap(tree_data, path=["column", "words"], values='counts',width =1000)
+    fig = px.treemap(tree_data, path=["column", "words"], values='counts')
     fig.update_layout(
         #margin=dict(l=20, r=20, t=20, b=20),
         font=dict(

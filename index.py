@@ -267,7 +267,7 @@ dbc.Row(
 
 
 html.Div(style={"border":"2px black solid"}),
-html.H1("Stock Twits and News Article Corelation ",style={
+html.H1("StockTwits and News Article Corelation ",style={
                                       'textAlign': 'center',"background": secondary_color}),
 
 dbc.Row(dbc.Col(dbc.Card(fig_treemap_plot),width=8), style={"marginTop": 30},justify="around"),
@@ -543,8 +543,7 @@ def update_dropdown(value):
     )
 
 def update_treemap(value):
-    pd.options.mode.chained_assignment = None
-
+    print("Getting Data for plotting Treemap")
     df2 = getstocktwitsdata(value)
     df_stocktwits = df2[['created_at', 'body', 'sentiment']]
     df2 = yahoonewsdata(value)
@@ -556,8 +555,8 @@ def update_treemap(value):
     topwords_withcount1 = get_ngramcounts(df_stocktwits,colname,2,5)
     topwords_withcount1['column'] = 'StockTwits'
     tree_data = pd.concat([topwords_withcount,topwords_withcount1])
+    print("Tree map data updated")
 
-    print(tree_data)
     fig_treemap_all = treemap_wordcloudplot(tree_data)
     return fig_treemap_all
 
