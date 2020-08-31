@@ -17,9 +17,20 @@ from collections import Counter
 import dash
 
 
+primary_blue = '#0000A0'
+secondary_yellow ='#E6A000'
+light_blue = '#009FEB'
+body_gray = '#707070'
+accent_gray = '#F2F2F2'
+
+mainheadline_color = '#06430C'
+primary_color = '#064507'
+main_color = '#E6A000'
+secondary_color = '#1DAB2C'
+
 external_stylesheets = ['assets/bootsrap.css']
 #app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = [dbc.themes.BOOTSTRAP])
-app = dash.Dash(__name__, external_stylesheets=['assets/bootstrap.css'])
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
 app.config.suppress_callback_exceptions = True
 
@@ -32,6 +43,21 @@ colors = {
     'background2': '#6533FF',
     'text': 'lightblue'
     }
+NAVBAR = dbc.Navbar(
+    children=[
+        dbc.Row(
+            [
+
+                html.H1([html.Span("Retail Innovation Center ", style={'color':light_blue}), html.Span("Stock Analysis Dashboard", style={'color':'white'})], className='ml-3'),
+            ],
+            align="center",
+            no_gutters=True,
+        ),
+    ],
+    color=mainheadline_color,
+    dark=True,
+    sticky="top"
+)
 
 
 
@@ -79,17 +105,23 @@ pd.options.mode.chained_assignment = None
 
 df2 = getstocktwitsdata('AMZN')
 df_stocktwits = df2[['created_at', 'body', 'sentiment']]
-colname = 'body'
-words_withcount,topwords_stocktwits = preprocesstextcol_getcounts(df_stocktwits,colname)
-topwords_stocktwits['column'] = 'sTOCKtWITS'
+#colname = 'body'
+#words_withcount,topwords_stocktwits = preprocesstextcol_getcounts(df_stocktwits,colname)
+#topwords_stocktwits['column'] = 'sTOCKtWITS'
 
 df2 = yahoonewsdata('AMZN')
 df_yahoonews = df2[['title', 'url','text' ,'summary']]
 colname = 'text'
-words_withcount,topwords_yahoonews = preprocesstextcol_getcounts(df_yahoonews,colname)
-topwords_yahoonews['column'] = 'YahooNews'
+#words_withcount,topwords_yahoonews = preprocesstextcol_getcounts(df_yahoonews,colname)
+#topwords_yahoonews['column'] = 'YahooNews'
 
-tree_data = pd.concat([topwords_stocktwits,topwords_yahoonews])
+
+topwords_withcount = get_ngramcounts(df_yahoonews,colname,2,5)
+topwords_withcount['column'] = 'YahooNews'
+colname = 'body'
+topwords_withcount1 = get_ngramcounts(df_stocktwits,colname,2,5)
+topwords_withcount1['column'] = 'StockTwits'
+tree_data = pd.concat([topwords_withcount,topwords_withcount1])
 
 print(tree_data)
 fig_treemap_all = treemap_wordcloudplot(tree_data)
@@ -103,7 +135,7 @@ fig_treemap_plot = [
         ],
     )
 ]
-
+'''
 fig_bigramplot = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
@@ -113,18 +145,17 @@ fig_bigramplot = [
         ],
     )
 ]
+'''
+
 
 
 
 
 sentimentpiestocktwits_fig = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
-    dbc.CardBody(
-        [
-            dcc.Graph( id='sentimentpiestocktwits')
+  dcc.Graph( id='sentimentpiestocktwits')
             ,
-        ],
-    )
+
 ]
 
 yahoonewsunigramplot_fig = [
@@ -140,12 +171,10 @@ yahoonewsunigramplot_fig = [
 
 stockwitsunigramplot_fig = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
-    dbc.CardBody(
-        [
+
             dcc.Graph( id='stockwitsunigramplot')
             ,
-        ],
-    )
+
 ]
 
 sentimentpieyahoonews_fig = [
@@ -157,7 +186,7 @@ sentimentpieyahoonews_fig = [
         ],
     )
 ]
-
+'''
 stocktwitsbigramplot_fig =  [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
@@ -168,12 +197,32 @@ stocktwitsbigramplot_fig =  [
     )
 ]
 
+'''
 
-app.layout = html.Div([
-html.H1('Retail Innovation Center Stock Analysis Dashboard',
-                               style={
-                                      'textAlign': 'center',
-                                      "background": "green"}),
+
+STOCKTWITS_UNIGRAM_PIE_PLOT = [
+    dbc.Col(
+        [
+            dbc.Row(stockwitsunigramplot_fig, align='center', className="my-4 justify-content-around"),
+            dbc.Row(sentimentpiestocktwits_fig, align='center', className="mb-3 justify-content-around"),
+        ],
+    ),
+]
+
+
+
+YAHOONEWS_UNIGRAM_PIE_PLOT = [
+    dbc.Row(
+        [
+            dbc.Col(yahoonewsunigramplot_fig, align='center', className="my-3 justify-content-around"),
+            dbc.Col(sentimentpieyahoonews_fig, align='center', className="mb-3 justify-content-around"),
+        ],
+    ),
+]
+
+
+BODY = html.Div([
+'-- SELECT DATES --',
 dcc.DatePickerRange(
                    id='date-input',
                    stay_open_on_select=False,
@@ -186,7 +235,7 @@ dcc.DatePickerRange(
                    month_format='MMMM,YYYY',
                    display_format='YYYY-MM-DD',
                    style={
-                          'color': '#11ff3b',
+                          'color': secondary_color,
                           'font-size': '15px',
                           'margin': 10,
                           'padding': '8px',
@@ -194,7 +243,7 @@ dcc.DatePickerRange(
                           'background': '#009EEA',
                    }
                ),
-               ' ---|--- Select Ticker here',
+               ' ---  SELECT TICKER ---',
                 dcc.Input(id='dropdown', value='AAPL',
                                    type='search',
                             style={
@@ -202,10 +251,9 @@ dcc.DatePickerRange(
                                 'font-weight': 100,
                                 'font-size': '16px',
                                 'line-height': '10px',
-                                'color': 'gray',
                                 'margin': 0,
                                 'padding': '8px',
-                                'background': 'green',
+                                'background': '#009EEA',
                                 'position': 'middle',
                                 'display': 'inline-block',
                                 'textAlign' :  'center',
@@ -222,7 +270,7 @@ dcc.DatePickerRange(
 
 html.Div(style={"border":"2px black solid"}),
 html.H1("Users Tweet on Selected Ticker",style={
-                                      'textAlign': 'center',"background": "#DBA21F"}),
+                                      'textAlign': 'center',"background": secondary_color}),
 
 #html.Br(),html.Br(),html.Br(),
 
@@ -232,54 +280,32 @@ html.Br(),
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), width= 11)
+                dbc.Col(dbc.Card(stocktwitsoutput_table), md= 7),
+                dbc.Col(dbc.Card(STOCKTWITS_UNIGRAM_PIE_PLOT), sm=4)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
 
-dbc.Row(
-            [
-                dbc.Col(dbc.Card(stockwitsunigramplot_fig),width= 3.5),
-            dbc.Col(dbc.Card(sentimentpiestocktwits_fig),width= 3.5)
-
-            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
-        ),
 
 html.Div(style={"border":"2px black solid"}),
 html.H1("Stock Twits and News Article Corelation ",style={
-                                      'textAlign': 'center',"background": "#DBA21F"}),
+                                      'textAlign': 'center',"background": secondary_color}),
 
-dbc.Row(
-            [
-                dbc.Col(dbc.Card(fig_bigramplot), width= 4),
-                dbc.Col(dbc.Card(stocktwitsbigramplot_fig),width= 4)
+dbc.Row(dbc.Col(dbc.Card(fig_treemap_plot),width=8), style={"marginTop": 30},justify="around"),
 
-            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
-        ),
 
 html.Div(style={"border":"2px black solid"}),
 
 html.H1("Stock News Article Summary on selected Ticker",style={
-                                      'textAlign': 'center',"background": "#DBA21F"}),
+                                      'textAlign': 'center',"background": secondary_color}),
 
 
 dbc.Row(
             [
+                dbc.Col(dbc.Card(newsheadlines_table), lg=10),
+                dbc.Row(dbc.Card(YAHOONEWS_UNIGRAM_PIE_PLOT))
 
-                dbc.Col(dbc.Card(newsheadlines_table), width=11)
-
-
-            ], style={"marginTop": 30,"marginBottom": 30},justify="around",
-        ),
-
-
-dbc.Row(
-            [
-                    dbc.Col(dbc.Card(yahoonewsunigramplot_fig), width=3),
-                    dbc.Col(dbc.Card(sentimentpieyahoonews_fig), width=3),
-
-
-            ], style={"marginTop": 30,"marginBottom": 30},justify="around",
+            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
 
 
@@ -287,16 +313,12 @@ html.Div(style={"border":"2px black solid"}),
 
 
 
-#dbc.Row(
-#            [
-#
-#                dbc.Col(dbc.Card(newssummary_table), width=11),
-#            ], style={"marginTop": 30,"marginBottom": 30},justify="around",
-#        ),
-
 
     ],
 )
+
+
+app.layout = html.Div([NAVBAR,BODY])
 
 
 
@@ -329,9 +351,9 @@ def get_data_table2(option):
             ],
             columns=[{'id': c, 'name': c} for c in filtereddf.columns],
             page_size=8,
-            style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
+            style_header={'backgroundColor': main_color, 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
-            style_cell={'font_size': '13px', 'whiteSpace': 'normal',
+            style_cell={'font_size': '14px', 'font_family':"Arial",'whiteSpace': 'normal',
                         'height': 'auto', 'padding': '15px'
 
                         },
@@ -363,72 +385,6 @@ def get_data_table2(option):
     return filteredtable
 
 
-
-
-
-
-
-
-@app.callback(Output('table-output1', 'children'),
-              [Input('dropdown', 'value')])
-def get_data_table3(option):
-    latestheadlines = yahoonewsheadlines(option)
-    #print('-----LATEST HEADLINES---------------')
-    #print(latestheadlines)
-    df2 = pd.DataFrame(latestheadlines,columns = ['StockNewsHeadlines','url'])
-    #df = df2[['StockNewsHeadlines']]
-    filtereddf = df2.copy()
-    filteredtable = dash_table.DataTable(
-
-            id='datatable-output',
-            style_data={
-                'whiteSpace': 'normal',
-                'height': 'auto',
-                'lineHeight': '15px'
-            },
-
-            data=filtereddf.to_dict('records'),
-
-            filter_action='native',
-
-
-            css=[
-                { 'selector': '.row-1', 'rule': 'background: #E6A000;' }
-            ],
-            columns=[{'id': c, 'name': c} for c in filtereddf.columns],
-            page_size=10,
-            style_header={'backgroundColor': '#009EEA', 'fontWeight': 'bold', 'border': '1px solid black',
-                          'font_size': '18px'},
-            style_cell={'font_size': '11px', 'whiteSpace': 'normal',
-                        'height': 'auto', 'padding': '15px'},
-            #export_format='csv',
-            export_format='csv',
-            export_headers='display',
-            style_data_conditional=[
-                {
-                    'if': {'row_index': 'odd'},
-                    'backgroundColor': 'rgb(248, 248, 248)'
-                },
-            ],
-
-        style_cell_conditional=[
-            {'if': {'column_id': 'UserTweetDate'},
-             'width': '10%',
-             'textAlign': 'center'},
-            {'if': {'column_id': 'Time'},
-             'width': '10%',
-             'textAlign': 'center'},
-            {'if': {'column_id': 'Tweet'},
-             'width': '55%',
-             'textAlign': 'center'},
-            {'if': {'column_id': 'sentiment'},
-             'width': '15%',
-             'textAlign': 'left'},
-        ]
-
-        )
-
-    return filteredtable
 
 
 
@@ -500,16 +456,16 @@ def get_data_table(option):
 
         filter_action='native',
         sort_action = 'native',
-
+        style_table={'overflowY': 'auto', 'maxHeight': 500},
         css=[
             {'selector': '.row-1', 'rule': 'background: #E6A000;'}
         ],
 
 
         page_size=5,
-        style_header={'backgroundColor': '#7DF180', 'fontWeight': 'bold', 'border': '1px solid black',
+        style_header={'backgroundColor': main_color, 'fontWeight': 'bold', 'border': '1px solid black',
                       'font_size': '18px'},
-        style_cell={'font_size': '11px', 'whiteSpace': 'normal',
+        style_cell={'font_size': '15px', 'font_family':"Arial",'whiteSpace': 'normal',
                     'height': 'auto', 'padding': '15px'},
         # export_format='csv',
         export_format='csv',
@@ -538,7 +494,7 @@ def get_data_table(option):
 
 
 @app.callback(
-    [Output('bigramplot', 'figure'),
+    [
     Output('yahoonewsunigramplot', 'figure'),
     Output('yahoonews_pie', 'figure')
      ],
@@ -565,13 +521,13 @@ def update_dropdown(value):
         # print(df_stocktwits)
         print("Plotting PIE")
         fig3 = pie_dropdownall(stcounts['counts'], colors1)
-        return fig,fig2,fig3
+        return fig2,fig3
 
 
 
 
 @app.callback(
-    [Output('stocktwitsbigramplot', 'figure'),
+    [
     Output('stockwitsunigramplot', 'figure'),
      Output('sentimentpiestocktwits', 'figure')],
     [Input('dropdown', 'value')]
@@ -598,27 +554,10 @@ def update_dropdown(value):
     print("Plotting PIE")
     fig3 = pie_dropdownall(stcounts['counts'], colors1)
 
-    return fig,fig2,fig3
+    return fig2,fig3
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
 
 
-
-
-html.H1("Stock Price on selected Ticker",style={
-                                      'textAlign': 'center',"background": "#DBA21F"}),
-
-'''
-dbc.Row(
-            [
-                dbc.Col(dbc.Card(stockgraph),width= 5),
-               #dbc.Col(dbc.Card(fig_treemap_plot),width= 5),
-           ],style={"marginTop": 30,"marginBottom": 30}, justify="around",
-        ),
-
-
-dbc.Col(dbc.Card(fig_treemap_plot),width= 5),
-
-'''

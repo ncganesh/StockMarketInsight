@@ -17,10 +17,6 @@ from nltk.stem import WordNetLemmatizer
 import re
 import string
 
-import plotly.graph_objects as go
-
-import plotly.express as px
-
 #Imports
 import time
 #Assign time.time() object to "start" so we can profile the code.
@@ -46,7 +42,7 @@ import requests
 
 
 
-def get_coin_data(crypto='AMZN', start_date='2013-04-28', end_date=datetime.now(), save_data=None):
+def get_coin_data(crypto='AMZN', start_date='2020-06-24', end_date=datetime.now(), save_data=None):
     df2 = yf.download(crypto, start_date, end_date)
     df2['Date'] = df2.index
 
@@ -223,10 +219,12 @@ def preprocesstextcol_getcounts(data,colname):
     topwords_withcount = words_withcount.head(10)
     return words_withcount,topwords_withcount
 
+import pandas as pd
+import plotly.graph_objects as go
 
-
+import plotly.express as px
 def treemap_wordcloudplot(tree_data):
-    fig = px.treemap(tree_data, path=["column", "words"], values='counts',height = 500,width = 700)
+    fig = px.treemap(tree_data, path=["column", "words"], values='counts',width =1000)
     fig.update_layout(
         #margin=dict(l=20, r=20, t=20, b=20),
         font=dict(
@@ -247,6 +245,8 @@ def get_top_n_bigram(corpus, ngramvalue,n):
     words_freq =sorted(words_freq, key = lambda x: x[1], reverse=True)
     return words_freq[:n]
 
+
+
 def get_ngramcounts(data,colname,ngramvalue,n):
     text = data[colname].apply(lambda x: preprocessing(str(x)))
     common_words = get_top_n_bigram(text, ngramvalue,n)
@@ -261,7 +261,7 @@ def ngram_plot(data,colname,ngramvalue,n,title):
     x = topwords_withcount.counts
     trace1 = go.Bar(y = y, x = x,orientation='h',marker = dict(color='#009EEA'),text = y)
     data = [trace1]
-    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=18))
+    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=15),width = 350)
     fig = go.Figure(data = data, layout = layout)
     return fig
 
@@ -272,4 +272,12 @@ def pie_dropdownall(sentvalues, colors1):
     labels = ["positive","neutral","negative"]
     values = list(sentvalues)
     fig =go.Figure(data=[go.Pie(labels=labels, values=values,marker=dict(colors=colors1, line=dict(color='#070707', width=1)))])
+    fig.update_layout(
+        # margin=dict(l=20, r=20, t=20, b=20),
+        font=dict(
+            size=17,
+            # color="RebeccaPurple"
+        ),
+        width = 400,
+    )
     return fig
