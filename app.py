@@ -497,5 +497,6 @@ def update_dropdown(value):
     return fig,fig2,fig3
 
 
+
 if __name__ == '__main__':
     app.run_server(debug=True)

@@ -101,36 +101,11 @@ stocktwitsgraph = [
     )
 ]
 
-pd.options.mode.chained_assignment = None
-
-df2 = getstocktwitsdata('AMZN')
-df_stocktwits = df2[['created_at', 'body', 'sentiment']]
-#colname = 'body'
-#words_withcount,topwords_stocktwits = preprocesstextcol_getcounts(df_stocktwits,colname)
-#topwords_stocktwits['column'] = 'sTOCKtWITS'
-
-df2 = yahoonewsdata('AMZN')
-df_yahoonews = df2[['title', 'url','text' ,'summary']]
-colname = 'text'
-#words_withcount,topwords_yahoonews = preprocesstextcol_getcounts(df_yahoonews,colname)
-#topwords_yahoonews['column'] = 'YahooNews'
-
-
-topwords_withcount = get_ngramcounts(df_yahoonews,colname,2,5)
-topwords_withcount['column'] = 'YahooNews'
-colname = 'body'
-topwords_withcount1 = get_ngramcounts(df_stocktwits,colname,2,5)
-topwords_withcount1['column'] = 'StockTwits'
-tree_data = pd.concat([topwords_withcount,topwords_withcount1])
-
-print(tree_data)
-fig_treemap_all = treemap_wordcloudplot(tree_data)
-
 fig_treemap_plot = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
         [
-            dcc.Graph( id='fig_treemap_all',figure=fig_treemap_all)
+            dcc.Graph( id='fig_treemap_all')
             ,
         ],
     )
@@ -272,7 +247,7 @@ dcc.DatePickerRange(
 
 html.Div(style={"border":"2px black solid"}),
 
-dbc.Row(dbc.Col(dbc.Card(stockgraph),width=8), style={"marginTop": 30},justify="around"),
+#dbc.Row(dbc.Col(dbc.Card(stockgraph),width=8), style={"marginTop": 30},justify="around"),
 html.H1("Users Tweet on Selected Ticker",style={
                                       'textAlign': 'center',"background": secondary_color}),
 
@@ -398,7 +373,7 @@ def get_data_table2(option):
                Input('date-input', 'end_date'),
                Input('dropdown', 'value')])
 def render_graph(start_date, end_date, option):
-    df = get_coin_data(crypto=option, start_date=start_date, end_date=end_date, save_data=None)
+    df = get_coin_data(option, start_date, end_date)
     data = df[(df.date >= start_date) & (df.date <= end_date)]
     print("STOCK DATA")
     print(data)
@@ -562,6 +537,29 @@ def update_dropdown(value):
 
     return fig2,fig3
 
+@app.callback(
+    Output('fig_treemap_all', 'figure'),
+    [Input('dropdown', 'value')]
+    )
+
+def update_treemap(value):
+    pd.options.mode.chained_assignment = None
+
+    df2 = getstocktwitsdata(value)
+    df_stocktwits = df2[['created_at', 'body', 'sentiment']]
+    df2 = yahoonewsdata(value)
+    df_yahoonews = df2[['title', 'url','text' ,'summary']]
+    colname = 'text'
+    topwords_withcount = get_ngramcounts(df_yahoonews,colname,2,5)
+    topwords_withcount['column'] = 'YahooNews'
+    colname = 'body'
+    topwords_withcount1 = get_ngramcounts(df_stocktwits,colname,2,5)
+    topwords_withcount1['column'] = 'StockTwits'
+    tree_data = pd.concat([topwords_withcount,topwords_withcount1])
+
+    print(tree_data)
+    fig_treemap_all = treemap_wordcloudplot(tree_data)
+    return fig_treemap_all
 
 if __name__ == '__main__':
     app.run_server(debug=True)

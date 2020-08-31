@@ -42,7 +42,7 @@ import requests
 
 
 
-def get_coin_data(crypto='AMZN', start_date='2020-06-24', end_date=datetime.now(), save_data=None):
+def get_coin_data(crypto, start_date, end_date):
     df2 = yf.download(crypto, start_date, end_date)
     df2['Date'] = df2.index
 
@@ -59,9 +59,6 @@ def get_coin_data(crypto='AMZN', start_date='2020-06-24', end_date=datetime.now(
 
     for col in df.columns[1:]:
         df[col] = np.round(df[col], 2)
-    while save_data:
-        df.to_csv('data.csv', index=False)
-        break
     return df
 
 
