@@ -28,7 +28,7 @@ primary_color = '#064507'
 main_color = '#E6A000'
 secondary_color = '#1DAB2C'
 
-external_stylesheets = ['assets/bootsrap.css']
+external_stylesheets = ['assets/bootsrapnew.css']
 #app = dash.Dash('Retail Technology Research Stock Analysis Dashboard',external_stylesheets = [dbc.themes.BOOTSTRAP])
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 server = app.server
@@ -177,6 +177,8 @@ stockwitsunigramplot_fig = [
 
 ]
 
+
+
 sentimentpieyahoonews_fig = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
@@ -269,6 +271,8 @@ dcc.DatePickerRange(
 
 
 html.Div(style={"border":"2px black solid"}),
+
+dbc.Row(dbc.Col(dbc.Card(stockgraph),width=8), style={"marginTop": 30},justify="around"),
 html.H1("Users Tweet on Selected Ticker",style={
                                       'textAlign': 'center',"background": secondary_color}),
 
@@ -396,6 +400,8 @@ def get_data_table2(option):
 def render_graph(start_date, end_date, option):
     df = get_coin_data(crypto=option, start_date=start_date, end_date=end_date, save_data=None)
     data = df[(df.date >= start_date) & (df.date <= end_date)]
+    print("STOCK DATA")
+    print(data)
     return dcc.Graph(
         id='graph-1',
         figure={
