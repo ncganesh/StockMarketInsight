@@ -41,24 +41,8 @@ import requests
 
 
 
-
 def get_coin_data(crypto, start_date, end_date):
-    df2 = yf.download(crypto, start_date, end_date)
-    df2['Date'] = df2.index
-
-    df = df2[['Date', 'Close']]
-    df.columns = ['date', 'price']
-    #print(df)
-    df_bi = Indices.get_simple_moving_average(df)
-    df_bi.drop('price', axis=1, inplace=True)
-
-
-    df = pd.merge(df, df_bi, on='date', how='left')
-    #print(df)
-    del df_bi
-
-    for col in df.columns[1:]:
-        df[col] = np.round(df[col], 2)
+    df = yf.download(crypto, start_date, end_date)
     return df
 
 
@@ -258,7 +242,7 @@ def ngram_plot(data,colname,ngramvalue,n,title):
     x = topwords_withcount.counts
     trace1 = go.Bar(y = y, x = x,orientation='h',marker = dict(color='#009EEA'),text = y)
     data = [trace1]
-    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=15),width = 350)
+    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=15))
     fig = go.Figure(data = data, layout = layout)
     return fig
 
@@ -277,4 +261,13 @@ def pie_dropdownall(sentvalues, colors1):
         ),
         width = 400,
     )
+    return fig
+
+def get_stockgraph(df):
+    fig = go.Figure(data=[go.Candlestick(x=df.index,
+                    open=df['Open'],
+                    high=df['High'],
+                    low=df['Low'],
+                    close=df['Close'])])
+
     return fig

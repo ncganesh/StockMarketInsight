@@ -84,14 +84,6 @@ newssummary_table = [
     )
 ]
 
-stockgraph = [
-    dbc.CardBody(
-        dcc.Graph( id='graph-output')
-         #html.Div(id='graph-output')
-
-    )
-]
-
 
 stocktwitsgraph = [
     dbc.CardBody(
@@ -110,17 +102,18 @@ fig_treemap_plot = [
         ],
     )
 ]
-'''
-fig_bigramplot = [
+
+
+YAHOONEWS_bigramplot = [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
         [
-            dcc.Graph( id='bigramplot')
+            dcc.Graph( id='yahoonewsbigramplot')
             ,
         ],
     )
 ]
-'''
+
 
 
 
@@ -163,25 +156,38 @@ sentimentpieyahoonews_fig = [
         ],
     )
 ]
-'''
-stocktwitsbigramplot_fig =  [
+
+STOCKTWITS_bigramplot =  [
     #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
     dbc.CardBody(
         [
-            dcc.Graph( id='stocktwitsbigramplot')
+            dcc.Graph( id='stockwitsbigramplot')
             ,
         ],
     )
 ]
 
-'''
+
+
+LINE_GRAPH =  [
+    #dbc.CardHeader(html.H5("What three words or phrases would describe how you feel about E2E?")),
+    dbc.CardBody(
+        [
+            dcc.Graph( id='graph-output')
+            ,
+        ],
+    )
+]
+
+
+
 
 
 STOCKTWITS_UNIGRAM_PIE_PLOT = [
     dbc.Col(
         [
-            dbc.Row(stockwitsunigramplot_fig, align='center', className="my-4 justify-content-around"),
-            dbc.Row(sentimentpiestocktwits_fig, align='center', className="mb-3 justify-content-around"),
+            dbc.Row(stockwitsunigramplot_fig, align='center'),
+            dbc.Row(sentimentpiestocktwits_fig, align='center'),
         ],
     ),
 ]
@@ -202,15 +208,8 @@ BODY = html.Div([
 '-- SELECT DATES --',
 dcc.DatePickerRange(
                    id='date-input',
-                   stay_open_on_select=False,
-                   min_date_allowed=datetime(2020, 8, 12),
-                   max_date_allowed=datetime.now(),
-                   initial_visible_month=datetime.now(),
-                   start_date=datetime(2020, 8, 22),
-                   end_date=datetime.now(),
-                   number_of_months_shown=2,
-                   month_format='MMMM,YYYY',
-                   display_format='YYYY-MM-DD',
+                   start_date='2020-05-15',
+                   end_date= '2020-08-31',
                    style={
                           'color': secondary_color,
                           'font-size': '15px',
@@ -254,6 +253,12 @@ html.H1("Users Tweet on Selected Ticker",style={
 #html.Br(),html.Br(),html.Br(),
 
 
+dbc.Row(
+            [
+                dbc.Col(dbc.Card(LINE_GRAPH), md= 7)
+
+            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
+        ),
 
 html.Br(),
 
@@ -270,7 +275,14 @@ html.Div(style={"border":"2px black solid"}),
 html.H1("StockTwits and News Article Corelation ",style={
                                       'textAlign': 'center',"background": secondary_color}),
 
-dbc.Row(dbc.Col(dbc.Card(fig_treemap_plot),width=8), style={"marginTop": 30},justify="around"),
+#dbc.Row(dbc.Col(dbc.Card(fig_treemap_plot),width=8), style={"marginTop": 30},justify="around"),
+dbc.Row(
+            [
+                dbc.Col(dbc.Card(STOCKTWITS_bigramplot ), md= 5),
+                dbc.Col(dbc.Card(YAHOONEWS_bigramplot), md=5)
+
+            ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
+        ),
 
 
 html.Div(style={"border":"2px black solid"}),
@@ -369,46 +381,18 @@ def get_data_table2(option):
 
 
 @app.callback(Output('graph-output', 'figure'),
-              [Input('date-input', 'start_date'),
-               Input('date-input', 'end_date'),
-               Input('dropdown', 'value')])
-def render_graph(start_date, end_date, option):
-    df = get_coin_data(option, start_date, end_date)
-    data = df[(df.date >= start_date) & (df.date <= end_date)]
+              [Input('dropdown', 'value'),
+                  Input('date-input', 'start_date'),
+               Input('date-input', 'end_date')
+               ])
+def render_graph(value,start_date, end_date):
+    df = get_coin_data(value, start_date, end_date)
+    data = df[(df.index >= start_date) & (df.index <= end_date)]
     print("STOCK DATA")
     print(data)
-    return dcc.Graph(
-        id='graph-1',
-        figure={
-            'data': [
-                {'x': data['date'], 'y': data['price'], 'type': 'line', 'name': 'value1'},
-            ],
-            'layout': {
-                'title': 'Price Vs Time ',
-                'plot_bgcolor': colors['background'],
-                'paper_bgcolor': colors['background'],
-                'font': {
-                    'color': colors['text'],
-                    'size': 18
-                },
-                'xaxis': {
-                        'title': 'Time',
-                        'showspikes': True,
-                        'spikedash': 'dot',
-                        'spikemode': 'across',
-                        'spikesnap': 'cursor',
-                        },
-                'yaxis': {
-                        'title': 'Price',
-                        'showspikes': True,
-                        'spikedash': 'dot',
-                        'spikemode': 'across',
-                        'spikesnap': 'cursor'
-                        },
+    fig = get_stockgraph(data)
+    return fig
 
-            }
-        }
-    )
 
 @app.callback(Output('table-output', 'children'),
               [Input('dropdown', 'value')])
@@ -476,6 +460,7 @@ def get_data_table(option):
 
 @app.callback(
     [
+    Output('yahoonewsbigramplot', 'figure'),
     Output('yahoonewsunigramplot', 'figure'),
     Output('yahoonews_pie', 'figure')
      ],
@@ -502,13 +487,14 @@ def update_dropdown(value):
         # print(df_stocktwits)
         print("Plotting PIE")
         fig3 = pie_dropdownall(stcounts['counts'], colors1)
-        return fig2,fig3
+        return fig,fig2,fig3
 
 
 
 
 @app.callback(
     [
+    Output('stockwitsbigramplot', 'figure'),
     Output('stockwitsunigramplot', 'figure'),
      Output('sentimentpiestocktwits', 'figure')],
     [Input('dropdown', 'value')]
@@ -535,7 +521,7 @@ def update_dropdown(value):
     print("Plotting PIE")
     fig3 = pie_dropdownall(stcounts['counts'], colors1)
 
-    return fig2,fig3
+    return fig,fig2,fig3
 
 @app.callback(
     Output('fig_treemap_all', 'figure'),
