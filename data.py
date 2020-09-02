@@ -242,25 +242,25 @@ def ngram_plot(data,colname,ngramvalue,n,title):
     x = topwords_withcount.counts
     trace1 = go.Bar(y = y, x = x,orientation='h',marker = dict(color='#009EEA'),text = y)
     data = [trace1]
-    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=15))
+    layout = go.Layout(barmode = "group",title=title, xaxis= dict(title='Counts'),yaxis=dict(autorange="reversed"),showlegend=False,font=dict(size=13))
     fig = go.Figure(data = data, layout = layout)
     return fig
 
 
 
 
-def pie_dropdownall(sentvalues, colors1):
+def pie_dropdownall(sentvalues, colors1,title):
     labels = ["positive","neutral","negative"]
     values = list(sentvalues)
     fig =go.Figure(data=[go.Pie(labels=labels, values=values,marker=dict(colors=colors1, line=dict(color='#070707', width=1)))])
     fig.update_layout(
         # margin=dict(l=20, r=20, t=20, b=20),
         font=dict(
-            size=17,
+            size=15,
             # color="RebeccaPurple"
         ),
-        width = 400,
     )
+    fig.update_layout(title=title, font=dict(size=11))
     return fig
 
 def get_stockgraph(df):
@@ -269,5 +269,7 @@ def get_stockgraph(df):
                     high=df['High'],
                     low=df['Low'],
                     close=df['Close'])])
+
+    fig.update_layout(title="<b>Stock Price for Selected Time Period <b>", font=dict(size=11))
 
     return fig

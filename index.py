@@ -186,8 +186,8 @@ LINE_GRAPH =  [
 STOCKTWITS_UNIGRAM_PIE_PLOT = [
     dbc.Col(
         [
-            dbc.Row(stockwitsunigramplot_fig, align='center'),
-            dbc.Row(sentimentpiestocktwits_fig, align='center'),
+            dbc.Row(stockwitsunigramplot_fig),
+            dbc.Row(sentimentpiestocktwits_fig),
         ],
     ),
 ]
@@ -197,8 +197,8 @@ STOCKTWITS_UNIGRAM_PIE_PLOT = [
 YAHOONEWS_UNIGRAM_PIE_PLOT = [
     dbc.Row(
         [
-            dbc.Col(yahoonewsunigramplot_fig, align='center', className="my-3 justify-content-around"),
-            dbc.Col(sentimentpieyahoonews_fig, align='center', className="mb-3 justify-content-around"),
+            dbc.Col(yahoonewsunigramplot_fig),
+            dbc.Col(sentimentpieyahoonews_fig),
         ],
     ),
 ]
@@ -270,7 +270,7 @@ html.H1("Users Tweet on Selected Ticker",style={
 dbc.Row(
             [
                 dbc.Col(dbc.Card(stocktwitsoutput_table), md= 7),
-                dbc.Col(dbc.Card(STOCKTWITS_UNIGRAM_PIE_PLOT), sm=4)
+                dbc.Col(dbc.Card(STOCKTWITS_UNIGRAM_PIE_PLOT), md=4.8)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -394,7 +394,7 @@ def render_graph(value,start_date, end_date):
     df = get_coin_data(value, start_date, end_date)
     data = df[(df.index >= start_date) & (df.index <= end_date)]
     print("STOCK DATA")
-    print(data)
+    #print(data)
     fig = get_stockgraph(data)
     return fig
 
@@ -410,7 +410,9 @@ def get_data_table(option):
     # df = pd.DataFrame(df2,columns = ['url','Headlines'])
     # print('Df Index',df)
     df = df2[['date','title', 'url',  'summary']]
-    df.columns = ['Date','StockNewsArticleTitle', 'url','Summarized Sentence using NLP']
+    df['date'] = df['date'].dt.date
+    print(df.dtypes)
+    df.columns = ['Date','StockNewsArticleTitle', 'URL','Summarized Sentence using NLP']
     filtereddf = df.copy()
     filteredtable = dash_table.DataTable(
 
@@ -446,14 +448,17 @@ def get_data_table(option):
         #    }
         # ],
         style_cell_conditional=[
-            {'if': {'column_id': 'StockNewsArticleTitle'},
-             'width': '5%',
+            {'if': {'column_id': 'Date'},
+             'width': '10%',
              'textAlign': 'left'},
-            {'if': {'column_id': 'url'},
-             'width': '5%',
+            {'if': {'column_id': 'StockNewsArticleTitle'},
+             'width': '7%',
+             'textAlign': 'left'},
+            {'if': {'column_id': 'URL'},
+             'width': '7%',
              'textAlign': 'left'},
             {'if': {'column_id': 'Summarized Sentence using NLP'},
-             'width': '90%',
+             'width': '76%',
              'textAlign': 'left'},
 
         ]
@@ -473,14 +478,14 @@ def get_data_table(option):
     )
 
 def update_dropdown(value):
-        title = value + ' News Article Bigrams'
+        title =  '<b> News Article Bigrams</b>'
         ngramvalue = 2
         n = 3
         yahoonewsdf = yahoonewsdata(value)
         yahoonews_df = yahoonewsdf[['title', 'url', 'text', 'summary']]
         fig = ngram_plot(yahoonews_df, 'text', ngramvalue, n, title)
 
-        title2 = value + ' News Article Unigrams'
+        title2 = value + ' <b> News Article Unigrams</b>'
         uningramvalue = 1
         n = 5
         fig2 = ngram_plot(yahoonews_df, 'text', uningramvalue, n, title2)
@@ -491,7 +496,8 @@ def update_dropdown(value):
         print(stcounts['counts'])
         # print(df_stocktwits)
         print("Plotting PIE")
-        fig3 = pie_dropdownall(stcounts['counts'], colors1)
+        title = "<b>Sentiment Distributions from News Articles<b>"
+        fig3 = pie_dropdownall(stcounts['counts'], colors1,title)
         return fig,fig2,fig3
 
 
@@ -506,15 +512,16 @@ def update_dropdown(value):
     )
 
 def update_dropdown(value):
-    title = value + ' Bigrams'
+    title = value + '<b> Stock Twits Bigrams</b>'
     ngramvalue = 2
     n = 5
     stocktwitsdf = getstocktwitsdata(value)
     df_stocktwits = stocktwitsdf[['created_at', 'body', 'sentiment']]
     fig = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
 
-    title = value + ' Stock Twits Bigrams'
+
     ngramvalue = 1
+    title ="<b>Most used words for </b>" +  value
     n = 5
     fig2 = ngram_plot(df_stocktwits, 'body', ngramvalue, n, title)
 
@@ -524,7 +531,8 @@ def update_dropdown(value):
     print(stcounts['counts'])
     # print(df_stocktwits)
     print("Plotting PIE")
-    fig3 = pie_dropdownall(stcounts['counts'], colors1)
+    title = "<b>Sentiment Distributions from Stock Twits</b>"
+    fig3 = pie_dropdownall(stcounts['counts'], colors1,title)
 
     return fig,fig2,fig3
 
