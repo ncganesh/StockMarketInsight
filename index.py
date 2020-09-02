@@ -269,8 +269,8 @@ html.H1("Users Tweet on Selected Ticker",style={
 
 dbc.Row(
             [
-                dbc.Col(dbc.Card(stocktwitsoutput_table), md= 7),
-                dbc.Col(dbc.Card(STOCKTWITS_UNIGRAM_PIE_PLOT), md=4.8)
+                dbc.Col(dbc.Card(stocktwitsoutput_table), md= 6),
+                dbc.Col(dbc.Card(STOCKTWITS_UNIGRAM_PIE_PLOT), md=4.5)
 
             ], style={"marginTop": 30,"marginBottom": 30}, justify="around",
         ),
@@ -349,7 +349,7 @@ def get_data_table2(option):
             page_size=8,
             style_header={'backgroundColor': main_color, 'fontWeight': 'bold', 'border': '1px solid black',
                           'font_size': '18px'},
-            style_cell={'font_size': '14px', 'font_family':"Arial",'whiteSpace': 'normal',
+            style_cell={'font_size': '11px', 'font_family':"Arial",'whiteSpace': 'normal',
                         'height': 'auto', 'padding': '15px'
 
                         },
