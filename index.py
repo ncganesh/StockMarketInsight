@@ -246,13 +246,9 @@ dcc.DatePickerRange(
 
 html.Div(style={"border":"2px black solid"}),
 
-#dbc.Row(dbc.Col(dbc.Card(stockgraph),width=8), style={"marginTop": 30},justify="around"),
-html.H1("Users Tweet on Selected Ticker",style={
+
+html.H1("Stock Price on Selected Ticker",style={
                                       'textAlign': 'center',"background": secondary_color}),
-
-#html.Br(),html.Br(),html.Br(),
-
-
 dbc.Row(
             [
                 dbc.Col(dbc.Card(LINE_GRAPH), md= 7)
@@ -261,6 +257,15 @@ dbc.Row(
         ),
 
 html.Br(),
+
+#dbc.Row(dbc.Col(dbc.Card(stockgraph),width=8), style={"marginTop": 30},justify="around"),
+html.H1("Users Tweet on Selected Ticker",style={
+                                      'textAlign': 'center',"background": secondary_color}),
+
+#html.Br(),html.Br(),html.Br(),
+
+
+
 
 dbc.Row(
             [
