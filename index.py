@@ -458,7 +458,7 @@ def get_data_table(option):
              'width': '7%',
              'textAlign': 'left'},
             {'if': {'column_id': 'Summarized Sentence using NLP'},
-             'width': '76%',
+             'width': '75%',
              'textAlign': 'left'},
 
         ]
